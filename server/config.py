@@ -2,6 +2,7 @@ import random
 from openai import OpenAI
 from server.keys import *
 
+
 # Mode
 mode = "local" # "local" or "openai" or "cloudflare"
 

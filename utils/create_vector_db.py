@@ -1,8 +1,11 @@
 # This script runs locally (w/LM Studio server) and an embedding model loaded.
 import sys
-sys.path.insert(0, 'C:\\aia25-studio-agent')
+# sys.path.insert(0, 'C:\\aia25-studio-agent')
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent))  # Adds project root to path
 import json
 import os
+# from config import *
 from server.config import *
 import re 
 

@@ -2,8 +2,8 @@ import sqlite3
 import pandas as pd
 
 
-excel_file_path = 'sql\cost_data.xlsx'
-conn = sqlite3.connect('sql\cost-database.db')
+excel_file_path = 'sql/building_panels.xlsx'
+conn = sqlite3.connect(r'sql/building_panels-database.db')
 cursor = conn.cursor()
 
 
