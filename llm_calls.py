@@ -54,17 +54,9 @@ def build_answer(sql_query: str, sql_result: str, user_question: str) -> str:
                 "role": "system",
                 "content":
                        f"""
-                         "content": "You are an SQL assistant for a building panels database. Generate SQL queries to answer user questions about building panels and their properties.\n\n
-                         ### DATABASE SCHEMA ###\nTable: panels\nColumns:\n- unit_id: Unit identifier (e.g., '187')\n- panel_id: Panel identifier (e.g., '3B_DOOR0', '3B_WALL10')\n- room: Room name (e.g., 'living room', 'bedroom 01')\n- orientation: Cardinal direction ('North', 'South', 'East', 'West', 'Unknown')\n- is_exterior: Boolean ('true' for exterior, 'false' for interior)\n\n
-                         #### EXAMPLES ###\nUser Question: How many panels are oriented to North?
-                         # SQL Query: SELECT COUNT(*) FROM panels WHERE orientation = 'North';
-                         # User Question: What panels are in unit 187's bathroom?
-                         # SQL Query: SELECT panel_id, orientation, is_exterior FROM panels WHERE unit_id = '187' AND room = 'bathroom';
-                         # User Question: How many exterior panels face South?
-                         # SQL Query: SELECT COUNT(*) FROM panels WHERE orientation = 'South' AND is_exterior = 'true';
-                         # User Question: Which units have the most panels? 
-                         # SQL Query: SELECT unit_id, COUNT(*) as panel_count FROM panels GROUP BY unit_id ORDER BY panel_count DESC;
-                         # Generate only the SQL query without additional explanation."
+                         "content": "You are an SQL assistant for a building panels database. Generate accurate SQL queries to answer any question about building panels.
+                         \n\n### TABLE SCHEMA ###\nTable: panels\n- unit_id (text): Unit identifier\n- panel_id (text): Panel identifier  \n- room (text): Room name\n- orientation (text): 'North', 'South', 'East', 'West', 'Unknown'\n- is_exterior (text): 'true' or 'false'\n\n
+                         ### QUERY PATTERNS ###\nFiltering: WHERE column = 'value' AND/OR other_column = 'value'\nCounting: SELECT COUNT(*) FROM panels WHERE...\nListing: SELECT column1, column2 FROM panels WHERE...\nGrouping: SELECT column, COUNT(*) FROM panels GROUP BY column\nSorting: ORDER BY column ASC/DESC\nPartial matching: WHERE column LIKE '%text%'\n\n### EXAMPLES ###\nQ: How many panels face North?\nA: SELECT COUNT(*) FROM panels WHERE orientation = 'North';\n\nQ: List all South-facing panels in bedrooms\nA: SELECT * FROM panels WHERE orientation = 'South' AND room LIKE '%bedroom%';\n\nQ: What exterior panels are in unit 187?\nA: SELECT panel_id, room, orientation FROM panels WHERE unit_id = '187' AND is_exterior = 'true';\n\nQ: Count panels by orientation\nA: SELECT orientation, COUNT(*) FROM panels GROUP BY orientation;\n\nQ: Which rooms have the most panels?\nA: SELECT room, COUNT(*) as count FROM panels GROUP BY room ORDER BY count DESC;\n\nReturn only the SQL query."
                 """,
             },
             {

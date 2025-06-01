@@ -4,7 +4,7 @@ from sql_calls import *
 from utils.rag_utils import sql_rag_call
 
 # --- User Input ---
-user_question = "How many facade panels oriented to south?"
+user_question = "How many bedrooms have south facing panels?"
 
 # --- Load SQL Database ---
 db_path = "sql/building_panels-database.db"
