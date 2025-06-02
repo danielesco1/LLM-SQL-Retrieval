@@ -4,10 +4,10 @@ from sql_calls import *
 from utils.rag_utils import sql_rag_call
 
 # --- User Input ---
-user_question = "How many bedrooms have south facing panels?"
+user_question = "return the unit ids and panel ids for the panels that are facing south and are windows and are in the room like bedroom"
 
 # --- Load SQL Database ---
-db_path = "sql/building_panels-database.db"
+db_path = "sql/building_panels-database1.db"
 db_schema = get_dB_schema(db_path)
 
 # --- Retrieve most relevant table ---
@@ -37,6 +37,7 @@ if "No information" in sql_query:
 
 # --- Execute SQL with a self-debbuging feature ---
 sql_query, query_result = fetch_sql(sql_query, db_context, user_question, db_path)
+#print(f"SQL Query Result: \n {query_result}")
 
 # -- If self-debugging failed after max_retries we give up
 if not query_result:

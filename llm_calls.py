@@ -9,37 +9,57 @@ def generate_sql_query(dB_context: str, retrieved_descriptions: str, user_questi
         messages=[
             {
                 "role": "system",
-                "content":
-                       f"""
-                You are a SQLite expert.
-                The database contains a table, Each table row represents an individual instance of a facade panel with its properties.
-                Example of a table rows:
-                unit_id	, panel_id, 	room , 	orientation	, is_exterior
-                187,	3B_DOOR0	,living room,	North	,false
-                187	,3B_FLOOR1	,living room	,South,	false
+                "content": f"""
+                    You are an SQL assistant for a building panels database. Generate accurate SQL queries for any question about building panels.
 
+                    ### TABLE SCHEMA ###
+                    Table: building_panels
+                    - unit_id (text): Unit identifier
+                    - panel_id (text): Panel identifier (contains type: WINDOW, DOOR, WALL, FLOOR, ROOF)
+                    - room (text): Room name
+                    - orientation (text): 'North', 'South', 'East', 'West', 'Unknown'
+                    - is_exterior (text): 'true' or 'false'
 
-                # Context Information #
-                ## Database Schema: ## {dB_context}
-                ## Table Descriptions: ## {retrieved_descriptions}
+                    ### DATABASE CONTEXT ###
+                    {dB_context}
+                    ### TABLE DESCRIPTIONS ###
+                    {retrieved_descriptions}
 
-                # Instructions #
-                ## Reasoning Steps: ##
-                - Carefully analyze the users question.
-                - Cross-reference the question with the provided database schema and table descriptions.
-                - Think about which data a query to the database should fetch. Only data related to the question should be fetched.
-                - Pay special atenttion to the names of the tables and properties of the schema. Your query must use keywords that match perfectly.
-                - Create a valid and relevant SQL query, using only the table names and properties that are present in the schema.
+                    ### QUERY PATTERNS ###
+                    Count: SELECT COUNT(*) FROM building_panels WHERE...
+                    List items: SELECT column FROM building_panels WHERE...
+                    Unique values: SELECT DISTINCT column FROM building_panels WHERE...
+                    Group/aggregate: SELECT column, COUNT(*) FROM building_panels GROUP BY column
+                    Panel types: panel_id LIKE '%WINDOW%' (or %DOOR%, %WALL%, %FLOOR%, %ROOF%)
+                    Rooms: room LIKE '%bedroom%' (or %bathroom%, %living%, %kitchen%)
 
-                ## Output Format: ##
-                - Output only the SQL query.
-                - Do not use formatting characters like '```sql' or other extra text.
-                - If the database doesnt have enough information to answer the question, simply output "No information".
-                """
+                    ### EXAMPLES ###
+                    Q: How many South-facing windows?
+                    A: SELECT COUNT(*) FROM building_panels WHERE orientation = 'South' AND panel_id LIKE '%WINDOW%';
+
+                    Q: Which units have exterior walls?
+                    A: SELECT DISTINCT unit_id FROM building_panels WHERE panel_id LIKE '%WALLS%' AND is_exterior = 'true';
+
+                    Q: List all panels in unit 187
+                    A: SELECT panel_id, room, orientation FROM building_panels WHERE unit_id = '187';
+
+                    # Instructions #
+                     ## Reasoning Steps: ##
+                     - Carefully analyze the users question.
+                     - Cross-reference the question with the provided database schema and table descriptions.
+                     - Think about which data a query to the database should fetch. Only data related to the question should be fetched.
+                     - Pay special atenttion to the names of the tables and properties of the schema. Your query must use keywords that match perfectly.
+                     - Create a valid and relevant SQL query, using only the table names and properties that are present in the schema.
+
+                     ## Output Format: ##
+                     - Output only the SQL query.
+                     - Do not use formatting characters like '```sql' or other extra text.
+                     - If the database doesnt have enough information to answer the question, simply output "No information".
+                    """
             },
             {
                 "role": "user",
-                "content": f"# User question # {user_question}",
+                "content": user_question,
             },
         ],
     )
@@ -52,20 +72,26 @@ def build_answer(sql_query: str, sql_result: str, user_question: str) -> str:
         messages=[
             {
                 "role": "system",
-                "content":
-                       f"""
-                         "content": "You are an SQL assistant for a building panels database. Generate accurate SQL queries to answer any question about building panels.
-                         \n\n### TABLE SCHEMA ###\nTable: panels\n- unit_id (text): Unit identifier\n- panel_id (text): Panel identifier  \n- room (text): Room name\n- orientation (text): 'North', 'South', 'East', 'West', 'Unknown'\n- is_exterior (text): 'true' or 'false'\n\n
-                         ### QUERY PATTERNS ###\nFiltering: WHERE column = 'value' AND/OR other_column = 'value'\nCounting: SELECT COUNT(*) FROM panels WHERE...\nListing: SELECT column1, column2 FROM panels WHERE...\nGrouping: SELECT column, COUNT(*) FROM panels GROUP BY column\nSorting: ORDER BY column ASC/DESC\nPartial matching: WHERE column LIKE '%text%'\n\n### EXAMPLES ###\nQ: How many panels face North?\nA: SELECT COUNT(*) FROM panels WHERE orientation = 'North';\n\nQ: List all South-facing panels in bedrooms\nA: SELECT * FROM panels WHERE orientation = 'South' AND room LIKE '%bedroom%';\n\nQ: What exterior panels are in unit 187?\nA: SELECT panel_id, room, orientation FROM panels WHERE unit_id = '187' AND is_exterior = 'true';\n\nQ: Count panels by orientation\nA: SELECT orientation, COUNT(*) FROM panels GROUP BY orientation;\n\nQ: Which rooms have the most panels?\nA: SELECT room, COUNT(*) as count FROM panels GROUP BY room ORDER BY count DESC;\n\nReturn only the SQL query."
-                """,
+                "content": """
+                Interpret SQL query results and provide natural language answers. Extract actual data.
+
+                Examples:
+                - SQL Result: [('187',), ('291',), ('385',)] → Answer: "[187, 291, 385]"
+                - SQL Result: [(15,)] → Answer: "15 panels"
+                - SQL Result: [] → Answer: "No results found"
+                - SQL Result: [('187', 'bedroom', 'North')] → Answer: "Found: Unit 187 has a North-facing panel in bedroom"
+                - SQL Result: [(187, '3B_WINDOW9'), (173, '3B_WINDOW8'), (173, '3B_WINDOW13')] → Answer: "[(187, '3B_WINDOW9'), (173, '3B_WINDOW8'), (173, '3B_WINDOW13')]"
+                
+                """
             },
             {
                 "role": "user",
-                "content": f""" 
+                "content": f"""
                 User question: {user_question}
                 SQL Query: {sql_query}
                 SQL Result: {sql_result}
-                Answer:
+                Return the formatted answer according. do not add anything else.
+                
                 """,
             },
         ],
