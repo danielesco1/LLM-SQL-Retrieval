@@ -24,22 +24,44 @@ def file_to_sqlite(file_path, db_path):
     
     conn.close()
 
-def verify_database(db_path):
-    conn = sqlite3.connect(db_path)
+def verify_database(db_path, sample_size=5):
+    conn   = sqlite3.connect(db_path)
     cursor = conn.cursor()
+
+    # 1) Fetch table names as plain strings
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
-    tables = cursor.fetchall()
-    
-    for table in tables:
-        cursor.execute(f"SELECT COUNT(*) FROM {table[0]}")
-        count = cursor.fetchone()[0]
-        print(f"Table '{table[0]}': {count} rows")
-    
+    tables = [row[0] for row in cursor.fetchall()]
+
+    if not tables:
+        print("❌ No tables found in the database.")
+    else:
+        for table_name in tables:
+            # 2) Total row count
+            cursor.execute(f'SELECT COUNT(*) FROM "{table_name}"')
+            count = cursor.fetchone()[0]
+            print(f"\nTable '{table_name}': {count} rows")
+
+            # 3) Sample rows
+            cursor.execute(
+                f'SELECT * FROM "{table_name}" '
+                f'ORDER BY RANDOM() '
+                f'LIMIT {sample_size}'
+            )
+            rows = cursor.fetchall()
+            cols = [desc[0] for desc in cursor.description]
+
+            # 4) Print header + rows
+            print(f"Sample {len(rows)} rows from '{table_name}':")
+            print(" | ".join(cols))
+            print("-" * (len(cols) * 12))
+            for r in rows:
+                print(" | ".join(str(v) for v in r))
+
     conn.close()
 
 # Usage
-file_to_sqlite('sql/building_panels.csv', 'sql/building_panels-database1.db')
-verify_database('sql/building_panels-database1.db')
+file_to_sqlite('sql/facade_sql.csv', 'sql/facade_sql.db')
+verify_database('sql/facade_sql.db')
 
 
 

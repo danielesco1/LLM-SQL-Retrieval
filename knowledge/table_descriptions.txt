@@ -1,2 +1,2 @@
-Table: building_panels
-Description: This table contains information about panels of the units. Each row records a unique unit ID, their panel ID, the room function, orientation of each panel, and if it's exterior or not.
+Table: facade_sql
+Description: This table contains information about panels of the units. Each row records a unique unit_id, their panel_id, the WWR(window to wall ratio), orientation of each panel (North, South, East, West), sda (Spatial Daylight Autonomy) which if value is higher than 50 means the room receives daylight over 50 percent of the time, and view score (higher scores are better).

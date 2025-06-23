@@ -38,9 +38,9 @@ llama3 = [
 ]
 
 
-llama3 = [
+qwen25 = [
         {
-            "model": "lmstudio-community/Meta-Llama-3.1-8B-Instruct-GGUF", #change this to point to a new model
+            "model": "RichardErkhov/abdulmannan-01_-_qwen-2.5-3b-finetuned-for-sql-generation-gguf", #change this to point to a new model
             'api_key': 'any string here is fine',
             'api_type': 'openai',
             'base_url': "http://127.0.0.1:1234",
@@ -57,6 +57,7 @@ def api_mode (mode):
         completion_model = llama3[0]['model']
         embedding_model = local_embedding_model
         return client, completion_model, embedding_model
+
     
     if mode == "cloudflare":
         client = cloudflare_client

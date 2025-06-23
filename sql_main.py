@@ -4,10 +4,10 @@ from sql_calls import *
 from utils.rag_utils import sql_rag_call
 
 # --- User Input ---
-user_question = "return the unit ids and panel ids for the panels that are facing south and are windows and are in the room like bedroom"
+user_question = "Which units have the lowest view scores"
 
 # --- Load SQL Database ---
-db_path = "sql/building_panels-database1.db"
+db_path = "sql/facade_sql.db"
 db_schema = get_dB_schema(db_path)
 
 # --- Retrieve most relevant table ---

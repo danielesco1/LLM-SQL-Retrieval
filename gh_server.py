@@ -10,13 +10,15 @@ app = Flask(__name__)
 def llm_call():
     data = request.get_json()
     input_string = data.get('input', '')
+    db_path = data.get('db_path', '')  
     
     # answer = process_database_query(input_string, db_path="sql/building_panels-database1.db")
     # --- User Input ---
     user_question = input_string
-
+    print(f"User question: {user_question}")
+    
     # --- Load SQL Database ---
-    db_path = "sql/building_panels-database1.db"
+    print(f"Database path: {db_path}")
     db_schema = get_dB_schema(db_path)
 
     # --- Retrieve most relevant table ---
@@ -32,8 +34,12 @@ def llm_call():
         exit()
 
     # --- Filter Schema to relevant table ---
+    print(f"relevant_table: '{relevant_table}'")
+    print(f"db_schema keys: {list(db_schema.keys())}")
     filtered_schema = {relevant_table: db_schema.get(relevant_table)}
+    print(f"Filtered Schema: \n {filtered_schema}")
     db_context = format_dB_context(db_path, filtered_schema)
+    print(f"Database Context: \n {db_context}")
 
     # --- Generate SQL query from LLM ---
     sql_query = generate_sql_query(db_context, table_description, user_question)
@@ -61,4 +67,4 @@ def llm_call():
     return jsonify({'response': final_answer})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=7000, debug=True)

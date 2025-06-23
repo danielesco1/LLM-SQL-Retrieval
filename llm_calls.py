@@ -12,14 +12,6 @@ def generate_sql_query(dB_context: str, retrieved_descriptions: str, user_questi
                 "content": f"""
                     You are an SQL assistant for a building panels database. Generate accurate SQL queries for any question about building panels.
 
-                    ### TABLE SCHEMA ###
-                    Table: building_panels
-                    - unit_id (text): Unit identifier
-                    - panel_id (text): Panel identifier (contains type: WINDOW, DOOR, WALL, FLOOR, ROOF)
-                    - room (text): Room name
-                    - orientation (text): 'North', 'South', 'East', 'West', 'Unknown'
-                    - is_exterior (text): 'true' or 'false'
-
                     ### DATABASE CONTEXT ###
                     {dB_context}
                     ### TABLE DESCRIPTIONS ###
@@ -31,18 +23,7 @@ def generate_sql_query(dB_context: str, retrieved_descriptions: str, user_questi
                     Unique values: SELECT DISTINCT column FROM building_panels WHERE...
                     Group/aggregate: SELECT column, COUNT(*) FROM building_panels GROUP BY column
                     Panel types: panel_id LIKE '%WINDOW%' (or %DOOR%, %WALL%, %FLOOR%, %ROOF%)
-                    Rooms: room LIKE '%bedroom%' (or %bathroom%, %living%, %kitchen%)
-
-                    ### EXAMPLES ###
-                    Q: How many South-facing windows?
-                    A: SELECT COUNT(*) FROM building_panels WHERE orientation = 'South' AND panel_id LIKE '%WINDOW%';
-
-                    Q: Which units have exterior walls?
-                    A: SELECT DISTINCT unit_id FROM building_panels WHERE panel_id LIKE '%WALLS%' AND is_exterior = 'true';
-
-                    Q: List all panels in unit 187
-                    A: SELECT panel_id, room, orientation FROM building_panels WHERE unit_id = '187';
-
+                    
                     # Instructions #
                      ## Reasoning Steps: ##
                      - Carefully analyze the users question.
@@ -157,6 +138,18 @@ def fix_sql_query(dB_context: str, user_question: str, atempted_queries: str, ex
         return match.group(1).strip()
     else:
         return None
+
+
+def questions():
+    f""" Which units have the lowest open view scores, and how can I improve them without increasing solar exposure?
+        Suggest window design or placement strategies to maximize open view in north-facing units with low scores.
+        How can I enhance views for southeast units without compromising solar control or daylight autonomy?
+        Which units have high SDA but also high solar radiation? Suggest ways to reduce overheating while maintaining daylight.
+        Propose shading strategies for west-facing units with excessive solar gain but good open views.
+        Give me facade design ideas for north units with poor daylight and views.
+        How should I adapt east-facing facades to balance morning sun and open view potential?
+        List the worst-performing units by combining open view score, solar radiation, and SDA. Suggest adaptive facade improvements.
+        """
 
 
 

@@ -45,6 +45,7 @@ def format_dB_context(ifc_sql_dB, filtered_dB_schema: str) -> str:
     chunks = []
     for table_name in filtered_dB_schema:
         properties_names = filtered_dB_schema[table_name]
+        print(f"Table: {table_name} with properties: {properties_names}")
         formatted_string = ', '.join(f'"{property}"' for property in properties_names)
         example_rows = fetch_example_rows(ifc_sql_dB, table_name)
         df = pd.DataFrame(example_rows, columns=properties_names)
